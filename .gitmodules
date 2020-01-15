@@ -1,0 +1,9 @@
+[submodule "GBARunner2"]
+	path = GBARunner2
+	url = https://github.com/Gericom/GBARunner2.git
+[submodule "TWiLightMenu"]
+	path = TWiLightMenu
+	url = https://github.com/DS-Homebrew/TWiLightMenu.git
+[submodule "nds-bootstrap"]
+	path = nds-bootstrap
+	url = https://github.com/ahezard/nds-bootstrap.git

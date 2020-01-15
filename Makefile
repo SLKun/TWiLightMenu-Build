@@ -11,13 +11,12 @@ PACKAGE		:=	Package
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-all: package_dsi
+all: package_dsi package_3ds
 
 build/: 
 	mkdir -p build
 
 GBARunner2: gbarunner2_arm7dldi_dsi gbarunner2_arm7dldi_3ds # gbarunner2_arm9dldi_ds gbarunner2_arm7dldi_ds
-	make -C GBARunner2 clean
 
 gbarunner2_arm9dldi_ds: build/
 	make -C GBARunner2 clean all
@@ -38,19 +37,18 @@ gbarunner2_arm7dldi_3ds: build/
 NDS_BOOTSTRAP_COMMIT_TAG := $(shell cd nds-bootstrap; git log --format=%h -1)make
 
 nds-bootstrap: build/
-	make -C nds-bootstrap clean package-nightly
+	make -C nds-bootstrap package-nightly
 	echo ${NDS_BOOTSTRAP_COMMIT_TAG} > build/nightly-bootstrap.ver
 	mv nds-bootstrap/bin/b4ds-nightly.nds build/b4ds-nightly.nds
 	mv nds-bootstrap/bin/nds-bootstrap-nightly.nds build/nds-bootstrap-nightly.nds
 	mv nds-bootstrap/bin/nds-bootstrap-hb-nightly.nds build/nds-bootstrap-hb-nightly.nds
-	make -C nds-bootstrap clean
 
 CIATOOL := "TWiLightMenu/booter/make_cia"
 TWiLightMenu_COMMIT_TAG_7 := $(shell cd nds-bootstrap; git rev-parse --short=7 HEAD)
 TWiLightMenu_COMMIT_TAG_16 := $(shell cd nds-bootstrap; git rev-parse --short=16 HEAD)
 
 TWiLightMenu:
-	make -C TWiLightMenu clean package
+	make -C TWiLightMenu package
 
 	chmod +x ${CIATOOL}
 	${CIATOOL} --srl="TWiLightMenu/booter/booter.nds" --id_0=${TWiLightMenu_COMMIT_TAG_7} --tikID=${TWiLightMenu_COMMIT_TAG_16}
@@ -61,18 +59,16 @@ TWiLightMenu:
 
 	cp -r TWiLightMenu/7zfile build/7zfile
 
-	make -C TWiLightMenu clean
-
 package_prepare: GBARunner2 nds-bootstrap TWiLightMenu
-	mv build/GBARunner2_arm7dldi_3ds.nds build/7zfile/_nds/GBARunner2_arm7dldi_3ds.nds
-	mv build/GBARunner2_arm7dldi_dsi.nds build/7zfile/_nds/GBARunner2_arm7dldi_dsi.nds
-	# mv build/GBARunner2_arm9dldi_ds.nds "build/7zfile/Flashcard users/_nds/GBARunner2_arm9dldi_ds.nds"
-	# mv build/GBARunner2_arm7dldi_ds.nds "build/7zfile/Flashcard users/_nds/GBARunner2_arm7dldi_ds.nds"
+	cp build/GBARunner2_arm7dldi_3ds.nds build/7zfile/_nds/GBARunner2_arm7dldi_3ds.nds
+	cp build/GBARunner2_arm7dldi_dsi.nds build/7zfile/_nds/GBARunner2_arm7dldi_dsi.nds
+	# cp build/GBARunner2_arm9dldi_ds.nds "build/7zfile/Flashcard users/_nds/GBARunner2_arm9dldi_ds.nds"
+	# cp build/GBARunner2_arm7dldi_ds.nds "build/7zfile/Flashcard users/_nds/GBARunner2_arm7dldi_ds.nds"
 
-	mv build/nightly-bootstrap.ver build/7zfile/_nds/TWiLightMenu/nightly-bootstrap.ver
-	mv build/b4ds-nightly.nds build/7zfile/Flashcard\ users/_nds/b4ds-nightly.nds
-	mv build/nds-bootstrap-nightly.nds build/7zfile/_nds/nds-bootstrap-nightly.nds
-	mv build/nds-bootstrap-hb-nightly.nds build/7zfile/DSi\&3DS\ -\ SD\ card\ users/_nds/nds-bootstrap-hb-nightly.nds
+	cp build/nightly-bootstrap.ver build/7zfile/_nds/TWiLightMenu/nightly-bootstrap.ver
+	cp build/b4ds-nightly.nds build/7zfile/Flashcard\ users/_nds/b4ds-nightly.nds
+	cp build/nds-bootstrap-nightly.nds build/7zfile/_nds/nds-bootstrap-nightly.nds
+	cp build/nds-bootstrap-hb-nightly.nds build/7zfile/DSi\&3DS\ -\ SD\ card\ users/_nds/nds-bootstrap-hb-nightly.nds
 
 package_dsi: package_prepare
 	mkdir -p ${PACKAGE}
@@ -99,5 +95,8 @@ package_3ds: package_prepare
 	cp build/7zfile/AP-patched\ games.txt ${PACKAGE}/3DS/_nds/
 
 clean:
+	make -C GBARunner2 clean
+	make -C nds-bootstrap clean
+	make -C TWiLightMenu clean
 	rm -rf build ${PACKAGE}
 	
